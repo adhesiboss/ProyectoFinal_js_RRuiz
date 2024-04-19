@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,500;1,500&display=swap');
+
+
+html {
+    height: 100vh;
+}
+
+html,
+body {
+    background-color: black;
+    margin: 0;
+    padding: 0;
+    color: white;
+}
+
+
+.tabla-usuarios {
+    max-height: 500px;
+    /* Altura máxima de la tabla */
+    overflow-y: auto;
+    /* Scroll vertical */
+}
+
+.fs-inputs {
+    font-size: 0.9rem;
+}
