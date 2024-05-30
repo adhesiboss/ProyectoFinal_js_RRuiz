@@ -10,7 +10,6 @@ async function obtenerUsuarioAleatorio() {
             nombre: usuarioAleatorio.name.first,
             apellido: usuarioAleatorio.name.last,
             email: usuarioAleatorio.email,
-            // Puedes agregar más campos según tus necesidades
         };
     } catch (error) {
         console.error('Error al obtener el usuario aleatorio:', error);
@@ -18,19 +17,14 @@ async function obtenerUsuarioAleatorio() {
     }
 }
 
-// Ejemplo de cómo agregar un usuario aleatorio
 async function agregarUsuarioAleatorio() {
     const usuario = await obtenerUsuarioAleatorio();
     if (usuario) {
-        // Agregar el usuario a tu lista de usuarios
         console.log('Usuario agregado:', usuario);
     } else {
         console.log('No se pudo obtener un usuario aleatorio.');
     }
 }
-
-// Llamar a la función para agregar un usuario aleatorio
-agregarUsuarioAleatorio();
 
 function mostrarOrdenarUsuariosDropdown() {
     const ordenarUsuariosContainer = document.getElementById('ordenarUsuariosContainer');
@@ -41,18 +35,16 @@ function mostrarOrdenarUsuariosDropdown() {
     }
 }
 
-
 async function agregarUsuario(monto, cuotas, primerMes, divisa) {
     try {
         const usuarioAleatorio = await obtenerUsuarioAleatorio();
         const tasaInteres = calcularTasaInteres(monto, cuotas);
-
         const tipoCambio = await obtenerTipoCambio(divisa);
 
         const usuario = {
             nombre: usuarioAleatorio.nombre,
             apellido: usuarioAleatorio.apellido,
-            montoUSD: monto, // El monto siempre en USD
+            montoUSD: monto,
             cuotas,
             primerMes,
             tasaInteres,
@@ -63,12 +55,11 @@ async function agregarUsuario(monto, cuotas, primerMes, divisa) {
         usuarios.push(usuario);
         localStorage.setItem('usuarios', JSON.stringify(usuarios));
         mostrarUsuarios();
-        mostrarOrdenarUsuariosDropdown(); // Mostrar el dropdown después de agregar un usuario
+        mostrarOrdenarUsuariosDropdown();
     } catch (error) {
         console.error('Error al agregar el usuario:', error);
     }
 }
-
 
 async function obtenerTipoCambio(divisa) {
     const apiKey = 'a6ef2bfe225f36945b5d084e';
@@ -80,13 +71,13 @@ async function obtenerTipoCambio(divisa) {
         return data.conversion_rates[divisa];
     } catch (error) {
         console.error('Error al obtener el tipo de cambio:', error);
-        return 1; // Si hay un error, devolver 1 para no afectar los cálculos.
+        return 1;
     }
 }
 
 function calcularTasaInteres() {
-    const tasaAnual = 0.2; // Tasa de interés anual del 20%
-    const tasaMensual = tasaAnual / 12; // Tasa de interés mensual
+    const tasaAnual = 0.2;
+    const tasaMensual = tasaAnual / 12;
     return tasaMensual;
 }
 
@@ -94,13 +85,17 @@ function mostrarUsuarios() {
     let outputs = document.getElementById('outputs');
     outputs.innerHTML = '';
 
-    // Obtener el valor seleccionado en el dropdown si existe
     let ordenarUsuariosDropdown = document.getElementById('ordenarUsuarios');
-    let orden = ordenarUsuariosDropdown ? ordenarUsuariosDropdown.value : 'ascendente'; // Valor por defecto si el dropdown no se encuentra
+    let orden = ordenarUsuariosDropdown ? ordenarUsuariosDropdown.value : 'ascendente';
 
-    // Ordenar la lista de usuarios según el valor seleccionado en el dropdown
-    let usuariosOrdenados = [...usuarios]; // Crear una copia para no modificar la lista original
+    let usuariosOrdenados = [...usuarios];
     switch (orden) {
+        case 'nombreAscendente':
+            usuariosOrdenados.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            break;
+        case 'nombreDescendente':
+            usuariosOrdenados.sort((a, b) => b.nombre.localeCompare(a.nombre));
+            break;
         case 'montoAscendente':
             usuariosOrdenados.sort((a, b) => a.montoUSD - b.montoUSD);
             break;
@@ -113,12 +108,10 @@ function mostrarUsuarios() {
         case 'cuotasDescendente':
             usuariosOrdenados.sort((a, b) => b.cuotas - a.cuotas);
             break;
-        // Agrega más casos según los criterios que necesites
         default:
             break;
     }
 
-    // Mostrar los usuarios ordenados
     usuariosOrdenados.forEach((usuario) => {
         let planPagos = mostrarPlanPagosUsuario(usuario);
         let usuarioOutput = document.createElement('div');
@@ -126,7 +119,6 @@ function mostrarUsuarios() {
         outputs.appendChild(usuarioOutput);
     });
 
-    // Agregar el div para ordenar usuarios dentro del div outputs si no existe
     let ordenarUsuariosContainer = document.getElementById('ordenarUsuariosContainer');
     if (!ordenarUsuariosContainer) {
         ordenarUsuariosContainer = document.createElement('div');
@@ -135,33 +127,24 @@ function mostrarUsuarios() {
         ordenarUsuariosContainer.innerHTML = `
             <label for="ordenarUsuarios">Ordenar usuarios por:</label>
             <select id="ordenarUsuarios">
+                <option value="nombreAscendente">Nombre (A-Z)</option>
+                <option value="nombreDescendente">Nombre (Z-A)</option>
                 <option value="montoAscendente">Monto (de menor a mayor)</option>
                 <option value="montoDescendente">Monto (de mayor a menor)</option>
                 <option value="cuotasAscendente">Cuotas (de menor a mayor)</option>
                 <option value="cuotasDescendente">Cuotas (de mayor a menor)</option>
-                <!-- Agrega más opciones según los criterios que necesites -->
             </select>
         `;
         outputs.appendChild(ordenarUsuariosContainer);
     }
 
-    // Agregar event listener al dropdown para ordenar usuarios si existe
     if (ordenarUsuariosDropdown) {
         ordenarUsuariosDropdown.addEventListener('change', () => {
             mostrarUsuarios();
-            // Actualizar el localStorage con la lista ordenada
             localStorage.setItem('usuarios', JSON.stringify(usuariosOrdenados));
         });
     }
 }
-
-
-
-
-
-
-
-
 
 function calcularPagoCuotasUsuario(usuario) {
     let { montoUSD: monto, cuotas } = usuario;
@@ -231,8 +214,6 @@ function mostrarPlanPagosUsuario(usuario) {
     return tabla;
 }
 
-
-
 document.getElementById('agregarUsuario').addEventListener('click', () => {
     let monto = parseFloat(document.getElementById('monto').value);
     let cuotas = parseInt(document.getElementById('cuotas').value);
@@ -252,7 +233,6 @@ document.getElementById('agregarUsuario').addEventListener('click', () => {
     document.getElementById('cuotas').value = '';
     document.getElementById('primerMes').value = '';
 });
-
 
 mostrarUsuarios();
 
