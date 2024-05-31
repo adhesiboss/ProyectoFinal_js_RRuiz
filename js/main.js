@@ -115,7 +115,7 @@ function mostrarUsuarios() {
     usuariosOrdenados.forEach((usuario) => {
         let planPagos = mostrarPlanPagosUsuario(usuario);
         let usuarioOutput = document.createElement('div');
-        usuarioOutput.innerHTML = `<h3 class="mt-5">Usuario: ${usuario.nombre} ${usuario.apellido}</h3>${planPagos}`;
+        usuarioOutput.innerHTML = `<h3 class="mt-5">${usuario.nombre} ${usuario.apellido}</h3>${planPagos}`;
         outputs.appendChild(usuarioOutput);
     });
 
@@ -162,27 +162,38 @@ function calcularPagoCuotasUsuario(usuario) {
 }
 
 function mostrarPlanPagosUsuario(usuario) {
-    let { nombre, apellido, montoUSD, cuotas, primerMes, tasaInteres, divisa, tipoCambio } = usuario;
+    let {  montoUSD, cuotas, primerMes, tasaInteres, divisa, tipoCambio } = usuario;
     let pagoMensual = calcularPagoCuotasUsuario(usuario);
     let intereses = montoUSD - (pagoMensual * cuotas);
     let meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-    let tabla = `<table class="table table-striped">
-                  <thead>
+    let tabla = `<table class="table table-striped table table-bordered table-striped mt-3 rounded">
+                  <thead class="table-dark">
                     <tr>
-                      <th colspan="5">Usuario: ${nombre} ${apellido} - Interés: ${tasaInteres.toFixed(2)} - Divisa: ${divisa}</th>
+                      <th colspan="4">Monto Solicitado: $${montoUSD}</th>
+                     
                     </tr>
                     <tr>
+                      <th colspan="4">N° de Cuotas: ${cuotas}</th>
+                     
+                    </tr>
+                    <tr>
+                      <th colspan="4">Tasa de Interés: ${tasaInteres.toFixed(2)}</th>
+                    </tr>
+                    <tr>
+                       <th colspan="4">Divisa: ${divisa}</th>
+                    </tr>
+                    <tr>
+                      <th>Cuota N°</th>
                       <th>Mes</th>
-                      <th>Cuota (${divisa})</th>
-                      <th>Interés (${divisa})</th>
-                      <th>Total a pagar (${divisa})</th>
+                      <th>Intereses</th>
+                      <th>Monto</th>
                     </tr>
                   </thead>
                   <tbody>`;
 
     let mesActual = meses.indexOf(primerMes.toLowerCase());
     let totalAcumulado = 0;
-    for (let i = 1; i <= cuotas; i++) {
+    for (let i = 0; i <= cuotas; i++) {
         let cuota = pagoMensual * tipoCambio;
         let interes = 0;
         if (i === cuotas) {
@@ -193,19 +204,18 @@ function mostrarPlanPagosUsuario(usuario) {
         }
         let totalAPagar = cuota + interes;
         tabla += `<tr>
+                  <td>${i + 1}</td>
                   <td>${meses[mesActual % 12]}</td>
-                  <td>$${cuota.toFixed(2)}</td>
                   <td>$${interes.toFixed(2)}</td>
                   <td>$${totalAPagar.toFixed(2)}</td>`;
         mesActual++;
         totalAcumulado += totalAPagar;
     }
 
-    tabla += `<tr>
-                <td>Total acumulado hasta el momento:</td>
-                <td></td>
-                <td></td>
-                <td>$${totalAcumulado.toFixed(2)}</td>
+   
+              tabla += `<tr>
+                <td colspan="3" class="text-end fw-bold">Total a Pagar</td>
+                <td colspan="4">$${totalAcumulado.toFixed(2)} ${divisa}</td>
               </tr>`;
 
     tabla += `</tbody>
